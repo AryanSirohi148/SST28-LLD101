@@ -1,23 +1,21 @@
+import java.util.List;
+
 public class Main {
     public static void main(String[] args) {
         System.out.println("=== Export Demo ===");
 
         ExportRequest req = new ExportRequest("Weekly Report", SampleData.longBody());
-        Exporter pdf = new PdfExporter();
-        Exporter csv = new CsvExporter();
-        Exporter json = new JsonExporter();
+        
+        List<Exporter> exporters = List.of(new PdfExporter(), new CsvExporter(), new JsonExporter());
+        String[] labels = {"PDF", "CSV", "JSON"};
 
-        System.out.println("PDF: " + safe(pdf, req));
-        System.out.println("CSV: " + safe(csv, req));
-        System.out.println("JSON: " + safe(json, req));
-    }
-
-    private static String safe(Exporter e, ExportRequest r) {
-        try {
-            ExportResult out = e.export(r);
-            return "OK bytes=" + out.bytes.length;
-        } catch (RuntimeException ex) {
-            return "ERROR: " + ex.getMessage();
+        for (int i = 0; i < exporters.size(); i++) {
+            ExportResult out = exporters.get(i).export(req);
+            if (out.isSuccess) {
+                System.out.println(labels[i] + ": OK bytes=" + out.bytes.length);
+            } else {
+                System.out.println(labels[i] + ": ERROR: " + out.errorMessage);
+            }
         }
     }
 }
