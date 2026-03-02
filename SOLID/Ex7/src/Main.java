@@ -1,4 +1,3 @@
-
 public class Main {
     public static void main(String[] args) {
         System.out.println("=== Smart Classroom ===");
@@ -8,8 +7,8 @@ public class Main {
         reg.add(new AirConditioner());
         reg.add(new AttendanceScanner());
 
-//        ClassroomController c = new ClassroomController(reg);
-//        c.startClass();
-//        c.endClass();
+        ClassroomController c = new ClassroomController(reg);
+        c.startClass();
+        c.endClass();
     }
 }

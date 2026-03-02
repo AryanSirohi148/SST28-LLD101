@@ -1,13 +1,12 @@
 import java.util.*;
 
 public class DeviceRegistry {
-    private final List<Device> devices = new ArrayList<>();
+    private final java.util.List<SmartClassroomDevice> devices = new ArrayList<>();
 
+    public void add(SmartClassroomDevice d) { devices.add(d); }
 
-    public void add(Device d) { devices.add(d); }
-
-    public Device getFirstOfType(String simpleName) {
-        for (Device d : devices) {
+    public SmartClassroomDevice getFirstOfType(String simpleName) {
+        for (SmartClassroomDevice d : devices) {
             if (d.getClass().getSimpleName().equals(simpleName)) return d;
         }
         throw new IllegalStateException("Missing: " + simpleName);
