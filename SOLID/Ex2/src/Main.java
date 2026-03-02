@@ -9,7 +9,8 @@ public class Main {
         TaxPolicy taxPolicy = new DefaultTaxPolicy();
         DiscountPolicy discountPolicy = new DefaultDiscountPolicy();
 
-        CafeteriaSystem sys = new CafeteriaSystem(repo, taxPolicy, discountPolicy);        sys.addToMenu(new MenuItem("M1", "Veg Thali", 80.00));
+        CafeteriaSystem sys = new CafeteriaSystem(repo, taxPolicy, discountPolicy);
+        sys.addToMenu(new MenuItem("M1", "Veg Thali", 80.00));
         sys.addToMenu(new MenuItem("C1", "Coffee", 30.00));
         sys.addToMenu(new MenuItem("S1", "Sandwich", 60.00));
 

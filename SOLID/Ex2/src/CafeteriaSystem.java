@@ -25,29 +25,14 @@ public class CafeteriaSystem {
     public void checkout(String customerType, List<OrderLine> lines) {
         String invId = "INV-" + (++invoiceSeq);
 
-        double subtotal = 0.0;
-        for (OrderLine l : lines) {
-            MenuItem item = menu.get(l.itemId);
-            double lineTotal = item.price * l.qty;
-            subtotal += lineTotal;
-        }
+        Bill bill = PricingService.calcBill(customerType,menu,lines,taxPolicy,discountPolicy);
 
-        double taxPct = taxPolicy.taxPercent(customerType);
-        double tax = subtotal * (taxPct / 100.0);
-
-        double discount = discountPolicy.discountAmount(customerType, subtotal, lines.size());
-
-        double total = subtotal + tax - discount;
 
         Invoice invoice = new Invoice(
                 invId,
                 lines,
                 menu,
-                subtotal,
-                taxPct,
-                tax,
-                discount,
-                total
+                bill
         );
 
 

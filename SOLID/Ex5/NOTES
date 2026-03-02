@@ -1,0 +1,75 @@
+Perfect 👍 here is the short and clear summary of Ex5 (LSP problem).
+
+⸻
+
+✅ What Was the Problem?
+
+We had this hierarchy:
+
+Exporter
+   ↑
+PdfEncoder
+CsvExporter
+JsonExporter
+
+But subclasses behaved differently:
+	•	❌ PdfEncoder rejected large content (tightened precondition)
+	•	❌ CsvExporter changed data meaning (weakened postcondition)
+	•	❌ JsonExporter handled null differently (inconsistent contract)
+
+Because of this:
+
+👉 You could NOT safely substitute any exporter wherever Exporter was expected.
+👉 That violates Liskov Substitution Principle (LSP) from Barbara Liskov.
+
+⸻
+
+✅ Our Design to Solve It
+
+Instead of inheritance, we used composition + strategy.
+
+New structure:
+
+Exporter  (defines common contract)
+    ↓
+  uses
+    ↓
+Encoder (interface)
+   ↑
+PdfEncoder
+CsvEncoder
+JsonEncoder
+
+	•	Exporter enforces generic rules (null check, consistent behavior).
+	•	Encoder handles only format-specific encoding logic.
+
+⸻
+
+✅ How This Design Solves the Problem
+	1.	✔ Clear and uniform base contract.
+	2.	✔ No subclass tightens preconditions.
+	3.	✔ No subclass weakens postconditions.
+	4.	✔ No inconsistent behavior.
+	5.	✔ No need for instanceof.
+	6.	✔ True substitutability.
+
+Instead of saying:
+
+PDF IS-A Exporter ❌
+
+We now say:
+
+Exporter HAS-A Encoder ✅
+
+This models the system correctly and removes the LSP violation.
+
+⸻
+
+🏆 One-Line Final Understanding
+
+The problem was misuse of inheritance causing behavioral inconsistency.
+The solution was replacing inheritance with composition to ensure consistent contract and true substitutability.
+
+⸻
+
+If you want, I can also give you a 5-line interview-ready answer version.

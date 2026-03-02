@@ -14,18 +14,14 @@ public class Invoice {
     public Invoice(String id,
                    List<OrderLine> lines,
                    Map<String, MenuItem> menu,
-                   double subtotal,
-                   double taxPct,
-                   double tax,
-                   double discount,
-                   double total) {
+                   Bill bill) {
         this.id = id;
         this.lines = lines;
         this.menu = menu;
-        this.subtotal = subtotal;
-        this.taxPct = taxPct;
-        this.tax = tax;
-        this.discount = discount;
-        this.total = total;
+        this.subtotal = bill.getSubtotal();
+        this.taxPct = bill.getTaxPct();
+        this.tax = bill.getTax();
+        this.discount = bill.getDiscount();
+        this.total = bill.getTotal();
     }
 }

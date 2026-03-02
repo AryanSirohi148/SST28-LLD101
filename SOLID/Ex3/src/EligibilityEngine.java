@@ -14,6 +14,7 @@ public class EligibilityEngine {
         EligibilityEngineResult r = evaluate(s); // giant conditional inside
         p.print(s, r);
         store.save(s.rollNo, r.status);
+        Scanner sc = new Scanner(System.in);
     }
 
     public EligibilityEngineResult evaluate(StudentProfile s) {
@@ -24,7 +25,6 @@ public class EligibilityEngine {
             Optional<String> result = rule.check(s);
             if(result.isPresent()){
                 reasons.add(result.get());
-                break;
             }
         }
 
