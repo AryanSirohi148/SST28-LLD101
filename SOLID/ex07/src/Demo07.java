@@ -1,4 +1,4 @@
-public class Main {
+public class Demo07 {
     public static void main(String[] args) {
         System.out.println("=== Smart Classroom ===");
         DeviceRegistry reg = new DeviceRegistry();
@@ -11,4 +11,6 @@ public class Main {
         c.startClass();
         c.endClass();
     }
+
+    // as it is jo diya tha
 }

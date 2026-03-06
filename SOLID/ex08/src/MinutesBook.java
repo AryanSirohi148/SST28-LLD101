@@ -8,3 +8,5 @@ public class MinutesBook {
     }
     public int count() { return items.size(); }
 }
+
+// given - change
