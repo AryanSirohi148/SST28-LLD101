@@ -33,7 +33,7 @@ Checkpoint D: Keep output identical.
 ```bash
 cd SOLID/Ex9/src
 javac *.java
-java Main
+java Main3
 ```
 
 ## 8. Sample output

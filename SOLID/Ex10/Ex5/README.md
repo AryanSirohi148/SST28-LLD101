@@ -8,7 +8,7 @@ A reporting tool exports student performance data to multiple formats.
 - `PdfEncoder` throws for large content (tightens preconditions)
 - `CsvExporter` silently changes meaning by dropping newlines and commas poorly
 - `JsonExporter` returns empty on null (inconsistent contract)
-- `Main` demonstrates current behavior
+- `Main3` demonstrates current behavior
 
 ## 3. What’s wrong (at least 5 issues)
 1. Subclasses violate expectations of the base `Exporter` contract.
@@ -25,7 +25,7 @@ Checkpoint C: Refactor hierarchy so all exporters honor the same contract.
 Checkpoint D: Keep observable outputs identical for current inputs.
 
 ## 5. Constraints
-- Keep `Main` outputs unchanged for the given samples.
+- Keep `Main3` outputs unchanged for the given samples.
 - No external libraries.
 - Default package.
 
@@ -38,7 +38,7 @@ Checkpoint D: Keep observable outputs identical for current inputs.
 ```bash
 cd SOLID/Ex5/src
 javac *.java
-java Main
+java Main3
 ```
 
 ## 8. Sample output
