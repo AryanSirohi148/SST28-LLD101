@@ -1,36 +1,37 @@
 import java.util.ArrayList;
 import java.util.List;
 
+// handles ticket booking and cancellation
 public class BookingService {
-    private final InMemoryStore store;
+    private final InMemoryStore dataStore;
     private final PricingEngine pricingEngine;
     private final PaymentService paymentService;
     private final BookingEventManager eventManager;
 
     public BookingService(
-        InMemoryStore store,
+        InMemoryStore dataStore,
         PricingEngine pricingEngine,
         PaymentService paymentService,
         BookingEventManager eventManager
     ) {
-        this.store = store;
+        this.dataStore = dataStore;
         this.pricingEngine = pricingEngine;
         this.paymentService = paymentService;
         this.eventManager = eventManager;
     }
 
     public Ticket bookTickets(String userId, String showId, List<String> seatIds, PaymentMode mode) {
-        User user = store.getUser(userId);
-        Show show = store.getShow(showId);
+        User user = dataStore.getUser(userId);
+        Show show = dataStore.getShow(showId);
 
         if (user == null) {
-            throw new IllegalArgumentException("User not found: " + userId);
+            throw new IllegalArgumentException("User not found");
         }
         if (show == null) {
-            throw new IllegalArgumentException("Show not found: " + showId);
+            throw new IllegalArgumentException("Show not found");
         }
         if (seatIds == null || seatIds.isEmpty()) {
-            throw new IllegalArgumentException("At least one seat must be selected.");
+            throw new IllegalArgumentException("Select at least one seat");
         }
 
         // During payment window, seats remain locked for the user.
@@ -40,20 +41,20 @@ public class BookingService {
         }
 
         List<Seat> seats = show.getSeats(seatIds);
-        double totalAmount = 0;
+        double amount = 0;
         for (Seat seat : seats) {
-            totalAmount += pricingEngine.calculatePrice(show, seat);
+            amount += pricingEngine.calculatePrice(show, seat);
         }
 
-        Payment payment = paymentService.makePayment(userId, totalAmount, mode);
+        Payment payment = paymentService.makePayment(userId, amount, mode);
         if (payment.getStatus() != PaymentStatus.SUCCESS) {
             show.releaseLocks(userId, seatIds);
-            throw new IllegalStateException("Payment failed.");
+            throw new IllegalStateException("Payment failed");
         }
 
         boolean confirmed = show.confirmBooking(userId, seatIds);
         if (!confirmed) {
-            throw new IllegalStateException("Booking confirmation failed due to lock timeout.");
+            throw new IllegalStateException("Booking failed");
         }
 
         Ticket ticket = new Ticket.Builder()
@@ -61,53 +62,53 @@ public class BookingService {
             .userId(userId)
             .showId(showId)
             .seatIds(new ArrayList<>(seatIds))
-            .totalAmount(Math.round(totalAmount * 100.0) / 100.0)
+            .totalAmount(Math.round(amount * 100.0) / 100.0)
             .paymentId(payment.getId())
             .paymentMode(mode)
             .status(TicketStatus.BOOKED)
             .build();
 
-        store.saveTicket(ticket);
+        dataStore.saveTicket(ticket);
         eventManager.notifyBooked(ticket);
 
         return ticket;
     }
 
     public Ticket cancelTicket(String userId, String ticketId) {
-        Ticket ticket = store.getTicket(ticketId);
+        Ticket ticket = dataStore.getTicket(ticketId);
         if (ticket == null) {
-            throw new IllegalArgumentException("Ticket not found: " + ticketId);
+            throw new IllegalArgumentException("Ticket not found");
         }
         if (!ticket.getUserId().equals(userId)) {
-            throw new IllegalStateException("Ticket does not belong to user.");
+            throw new IllegalStateException("Invalid user for ticket");
         }
         if (ticket.getStatus() == TicketStatus.CANCELLED) {
-            throw new IllegalStateException("Ticket already cancelled.");
+            throw new IllegalStateException("Already cancelled");
         }
 
-        Show show = store.getShow(ticket.getShowId());
+        Show show = dataStore.getShow(ticket.getShowId());
         show.cancelBookedSeats(ticket.getSeatIds());
 
         paymentService.refund(ticket.getPaymentId());
 
         Ticket cancelledTicket = ticket.withCancelledStatus();
-        store.saveTicket(cancelledTicket);
+        dataStore.saveTicket(cancelledTicket);
         eventManager.notifyCancelled(cancelledTicket);
         return cancelledTicket;
     }
 
     public java.util.Map<String, SeatState> showSeatMap(String showId) {
-        Show show = store.getShow(showId);
+        Show show = dataStore.getShow(showId);
         if (show == null) {
-            throw new IllegalArgumentException("Show not found: " + showId);
+            throw new IllegalArgumentException("Show not found");
         }
         return show.getSeatMapSnapshot();
     }
 
     public double estimateTotal(String showId, List<String> seatIds) {
-        Show show = store.getShow(showId);
+        Show show = dataStore.getShow(showId);
         if (show == null) {
-            throw new IllegalArgumentException("Show not found: " + showId);
+            throw new IllegalArgumentException("Show not found");
         }
 
         double total = 0;

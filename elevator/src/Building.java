@@ -5,20 +5,21 @@ import java.util.Objects;
 public class Building {
     private final String name;
     private final int numFloors;
-    private final List<Floor> floors;
+    private final List<Floor> floorList;
     private final ElevatorDispatcher dispatcher;
 
+    // initialize building with floors and dispatcher
     public Building(String name, int numFloors, ElevatorSchedulingStrategy strategy) {
         this.name = Objects.requireNonNull(name);
         this.numFloors = numFloors;
-        this.floors = new ArrayList<>();
+        this.floorList = new ArrayList<>();
         this.dispatcher = new ElevatorDispatcher(strategy);
 
         for (int i = 0; i <= numFloors; i++) {
             if (i == 0) {
-                floors.add(new Floor(i, "Ground"));
+                floorList.add(new Floor(i, "Ground"));
             } else {
-                floors.add(new Floor(i, "Floor-" + i));
+                floorList.add(new Floor(i, "F" + i));
             }
             dispatcher.addOutsidePanel(new OutsidePanel(i));
         }
@@ -67,8 +68,8 @@ public class Building {
     }
 
     public void displayAllElevatorStatus() {
-        System.out.println("\n[Building Status] " + name + " with " + numFloors + " floors:");
-        System.out.println("Dispatch Strategy: " + dispatcher.getStrategy().name());
+        System.out.println("\nBuilding: " + name + ", Floors: " + numFloors);
+        System.out.println("Strategy: " + dispatcher.getStrategy().name());
         for (Elevator elevator : getAllElevators()) {
             System.out.println("  " + elevator);
         }
@@ -76,10 +77,6 @@ public class Building {
 
     @Override
     public String toString() {
-        return "Building{" +
-            "name='" + name + '\'' +
-            ", floors=" + numFloors +
-            ", elevators=" + dispatcher.getAllElevators().size() +
-            '}';
+        return "Building{name='" + name + "', floors=" + numFloors + "}";
     }
 }

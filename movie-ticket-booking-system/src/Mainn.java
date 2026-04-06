@@ -13,12 +13,12 @@ public class Mainn {
         MovieTicketSystem system = new MovieTicketSystem();
 
         // 1) Register users (duplicate email is blocked by design)
-        User u1 = system.registerCustomer("Aarav", "aarav@mail.com");
-        User u2 = system.registerCustomer("Diya", "diya@mail.com");
+        User u1 = system.registerCustomer("User1", "user1@mail.com");
+        User u2 = system.registerCustomer("User2", "user2@mail.com");
 
         // 2) Admin adds movie/theatre/show
-        Movie movie1 = system.addMovie("Interstellar", "English", 169);
-        Movie movie2 = system.addMovie("Kalki", "Hindi", 160);
+        Movie movie1 = system.addMovie("Interstellar Movie", "English", 169);
+        Movie movie2 = system.addMovie("Kalki Film", "Hindi", 160);
 
         Map<SeatType, Double> basePrices = new EnumMap<>(SeatType.class);
         basePrices.put(SeatType.BRONZE, 200.0);
@@ -44,7 +44,7 @@ public class Mainn {
             }}
         ));
 
-        Theatre theatre = system.addTheatre("PVR Nexus", "Delhi", basePrices, Arrays.asList(screen1, screen2));
+        Theatre theatre = system.addTheatre("PVR", "Delhi", basePrices, Arrays.asList(screen1, screen2));
 
         LocalDateTime morningShowTime = LocalDateTime.of(2026, Month.APRIL, 5, 10, 0);
         LocalDateTime eveningShowTime = LocalDateTime.of(2026, Month.APRIL, 5, 18, 0);
@@ -56,20 +56,20 @@ public class Mainn {
         system.setRuntimePricingRules(Arrays.asList("WEEKEND_20", "DEMAND_80_50", "MONTH_PEAK"));
 
         // 3) Required discovery APIs
-        System.out.println("\n--- showTheatre(Delhi) ---");
+        System.out.println("\nTheatres in Delhi:");
         System.out.println(system.showTheatre("Delhi"));
 
-        System.out.println("\n--- showMovies(Delhi) ---");
+        System.out.println("\nMovies in Delhi:");
         System.out.println(system.showMovies("Delhi"));
 
-        System.out.println("\n--- showTheatresWithSlotsForMovie(Delhi, Interstellar) ---");
+        System.out.println("\nTheatres for Interstellar:");
         System.out.println(system.showTheatresWithSlotsForMovie("Delhi", movie1.getId()));
 
-        System.out.println("\n--- showMoviesWithSlotsForTheatre(PVR Nexus) ---");
+        System.out.println("\nMovies in theatre:");
         System.out.println(system.showMoviesWithSlotsForTheatre(theatre.getId()));
 
         // 4) Seat map
-        System.out.println("\n--- Seat map before booking ---");
+        System.out.println("\nSeat map before:");
         System.out.println(system.showSeatMap(show1.getId()));
 
         // 5) Concurrency test: two users race for same seats
@@ -79,29 +79,29 @@ public class Mainn {
         executor.submit(() -> {
             try {
                 double estimate = system.estimatePrice(show1.getId(), targetSeats);
-                System.out.println("User-1 estimate: " + estimate);
+                System.out.println("User1 estimate: " + estimate);
                 Ticket ticket = system.bookTickets(u1.getId(), show1.getId(), targetSeats, PaymentMode.UPI);
-                System.out.println("User-1 booked: " + ticket);
+                System.out.println("User1 booked: " + ticket);
             } catch (Exception ex) {
-                System.out.println("User-1 failed: " + ex.getMessage());
+                System.out.println("User1 failed: " + ex.getMessage());
             }
         });
 
         executor.submit(() -> {
             try {
                 double estimate = system.estimatePrice(show1.getId(), targetSeats);
-                System.out.println("User-2 estimate: " + estimate);
+                System.out.println("User2 estimate: " + estimate);
                 Ticket ticket = system.bookTickets(u2.getId(), show1.getId(), targetSeats, PaymentMode.CARD);
-                System.out.println("User-2 booked: " + ticket);
+                System.out.println("User2 booked: " + ticket);
             } catch (Exception ex) {
-                System.out.println("User-2 failed: " + ex.getMessage());
+                System.out.println("User2 failed: " + ex.getMessage());
             }
         });
 
         executor.shutdown();
         executor.awaitTermination(5, TimeUnit.SECONDS);
 
-        System.out.println("\n--- Seat map after concurrent attempt ---");
+        System.out.println("\nSeat map after:");
         System.out.println(system.showSeatMap(show1.getId()));
 
         // 6) Regular booking + cancellation with refund to original mode
@@ -111,7 +111,7 @@ public class Mainn {
         Ticket cancelled = system.cancelTicket(u2.getId(), t2.getId());
         System.out.println("Cancelled ticket: " + cancelled);
 
-        System.out.println("\n--- Seat map after cancellation (show2) ---");
+        System.out.println("\nSeat map after cancellation:");
         System.out.println(system.showSeatMap(show2.getId()));
     }
 }

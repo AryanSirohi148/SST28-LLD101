@@ -11,7 +11,7 @@ public class Elevator {
     private int currentFloor;
     private double currentWeight;
     private ElevatorState state;
-    private final List<Integer> destinationFloors;
+    private final List<Integer> targets;
     private boolean doorsOpen;
     private boolean alarmTriggered;
 
@@ -20,12 +20,12 @@ public class Elevator {
         this.currentFloor = startFloor;
         this.currentWeight = 0.0;
         this.state = ElevatorState.IDLE;
-        this.destinationFloors = new ArrayList<>();
+        this.targets = new ArrayList<>();
         this.doorsOpen = false;
         this.alarmTriggered = false;
     }
 
-    public synchronized void addRequest(int destinationFloor, double weight) {
+    public synchronized void addRequest(int floor, double weight) {
         if (state == ElevatorState.MAINTENANCE) {
             throw new IllegalStateException("Elevator " + id + " is under maintenance.");
         }
@@ -37,15 +37,15 @@ public class Elevator {
             );
         }
 
-        if (!destinationFloors.contains(destinationFloor)) {
-            destinationFloors.add(destinationFloor);
+        if (!targets.contains(floor)) {
+            targets.add(floor);
         }
 
         currentWeight += weight;
     }
 
     public synchronized void processNextFloor() {
-        if (state == ElevatorState.MAINTENANCE || destinationFloors.isEmpty()) {
+        if (state == ElevatorState.MAINTENANCE || targets.isEmpty()) {
             return;
         }
 
@@ -53,27 +53,27 @@ public class Elevator {
             closeDoors();
         }
 
-        Integer nextFloor = getNextDestination();
-        if (nextFloor == null) {
+        Integer next = getNextDestination();
+        if (next == null) {
             state = ElevatorState.IDLE;
             return;
         }
 
-        if (nextFloor > currentFloor) {
+        if (next > currentFloor) {
             state = ElevatorState.MOVING_UP;
-            System.out.println("  [Elevator-" + id + "] Moving UP to floor " + nextFloor);
-        } else if (nextFloor < currentFloor) {
+            System.out.println("Elevator " + id + " going UP to " + next);
+        } else if (next < currentFloor) {
             state = ElevatorState.MOVING_DOWN;
-            System.out.println("  [Elevator-" + id + "] Moving DOWN to floor " + nextFloor);
+            System.out.println("Elevator " + id + " going DOWN to " + next);
         }
 
-        currentFloor = nextFloor;
-        destinationFloors.remove(Integer.valueOf(nextFloor));
+        currentFloor = next;
+        targets.remove(Integer.valueOf(next));
 
-        System.out.println("  [Elevator-" + id + "] Arrived at floor " + currentFloor);
+        System.out.println("Elevator " + id + " reached " + currentFloor);
         openDoors();
 
-        if (destinationFloors.isEmpty()) {
+        if (targets.isEmpty()) {
             currentWeight = 0.0;
             state = ElevatorState.IDLE;
         }
@@ -82,38 +82,38 @@ public class Elevator {
     public synchronized void openDoors() {
         if (!doorsOpen && state != ElevatorState.MAINTENANCE) {
             doorsOpen = true;
-            System.out.println("    >>> Doors OPENED at floor " + currentFloor);
+            System.out.println("Doors opened at " + currentFloor);
         }
     }
 
     public synchronized void closeDoors() {
         if (doorsOpen) {
             doorsOpen = false;
-            System.out.println("    >>> Doors CLOSED");
+            System.out.println("Doors closed");
         }
     }
 
     public synchronized void triggerAlarm() {
         alarmTriggered = true;
-        System.out.println("  [Elevator-" + id + "] ALARM TRIGGERED! Emergency stop.");
+        System.out.println("Elevator " + id + " alarm triggered");
         closeDoors();
         state = ElevatorState.IDLE;
-        destinationFloors.clear();
+        targets.clear();
         currentWeight = 0.0;
     }
 
     public synchronized void enterMaintenance() {
         state = ElevatorState.MAINTENANCE;
         closeDoors();
-        destinationFloors.clear();
+        targets.clear();
         currentWeight = 0.0;
-        System.out.println("  [Elevator-" + id + "] Entered MAINTENANCE mode.");
+        System.out.println("Elevator " + id + " in maintenance");
     }
 
     public synchronized void exitMaintenance() {
         state = ElevatorState.IDLE;
         alarmTriggered = false;
-        System.out.println("  [Elevator-" + id + "] Exited MAINTENANCE mode.");
+        System.out.println("Elevator " + id + " back to normal");
     }
 
     public synchronized String getId() {
@@ -141,20 +141,20 @@ public class Elevator {
     }
 
     public synchronized int getPendingRequestCount() {
-        return destinationFloors.size();
+        return targets.size();
     }
 
     public synchronized List<Integer> getPendingDestinations() {
-        return Collections.unmodifiableList(new ArrayList<>(destinationFloors));
+        return Collections.unmodifiableList(new ArrayList<>(targets));
     }
 
     private Integer getNextDestination() {
-        if (destinationFloors.isEmpty()) {
+        if (targets.isEmpty()) {
             return null;
         }
 
         // Simple strategy: go to closest floor next
-        return Collections.min(destinationFloors, Comparator.comparingInt(f -> Math.abs(f - currentFloor)));
+        return Collections.min(targets, Comparator.comparingInt(f -> Math.abs(f - currentFloor)));
     }
 
     @Override
@@ -164,7 +164,7 @@ public class Elevator {
             ", floor=" + currentFloor +
             ", state=" + state +
             ", weight=" + currentWeight + "/" + MAX_WEIGHT + "kg" +
-            ", pending=" + destinationFloors.size() +
+            ", pending=" + targets.size() +
             '}';
     }
 }

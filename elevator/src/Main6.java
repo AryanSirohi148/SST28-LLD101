@@ -1,9 +1,9 @@
 public class Main6 {
     public static void main(String[] args) {
-        System.out.println("========== ELEVATOR SYSTEM DEMO ==========\n");
+        System.out.println("===== Elevator System Demo =====\n");
 
         // 1) Create building with ShortestPathFirst strategy
-        Building building = new Building("Tech Tower", 5, new ShortestPathFirstStrategy());
+        Building building = new Building("Main Building", 5, new ShortestPathFirstStrategy());
         building.addElevator("E1");
         building.addElevator("E2");
 
@@ -12,8 +12,8 @@ public class Main6 {
 
         // 2) Demo: User from Floor 0 presses UP button, user weight 70kg
         System.out.println("\n--- Scenario 1: User at Ground Floor presses UP ---");
-        OutsidePanel groundPanel = building.getOutsidePanel(0);
-        groundPanel.pressButton(ButtonType.UP, building.getDispatcher(), 70.0);
+        OutsidePanel panel0 = building.getOutsidePanel(0);
+        panel0.pressButton(ButtonType.UP, building.getDispatcher(), 70.0);
 
         // Process elevator movement
         building.processAllElevators();
@@ -24,7 +24,7 @@ public class Main6 {
         insidePanel.pressButton(ButtonType.FLOOR, 3, building.getAllElevators().get(0));
 
         // Process multiple steps of elevator movement
-        for (int i = 0; i < 4; i++) {
+        for (int step = 0; step < 4; step++) {
             building.processAllElevators();
         }
 
@@ -34,7 +34,7 @@ public class Main6 {
             OutsidePanel floor2Panel = building.getOutsidePanel(2);
             floor2Panel.pressButton(ButtonType.DOWN, building.getDispatcher(), 750.0);
         } catch (Exception ex) {
-            System.out.println("  Error: " + ex.getMessage());
+            System.out.println("Error: " + ex.getMessage());
         }
 
         // 5) Demo: Maintenance mode
@@ -47,16 +47,16 @@ public class Main6 {
 
         // 6) Demo: Multiple concurrent requests
         System.out.println("\n--- Scenario 5: Multiple requests (FCFS strategy) ---");
-        Building fcfsBuilding = new Building("Office Complex", 4, new FirstComeFirstServeStrategy());
+        Building fcfsBuilding = new Building("Office", 4, new FirstComeFirstServeStrategy());
         fcfsBuilding.addElevator("E3");
 
-        OutsidePanel floor0 = fcfsBuilding.getOutsidePanel(0);
-        OutsidePanel floor1 = fcfsBuilding.getOutsidePanel(1);
-        OutsidePanel floor2 = fcfsBuilding.getOutsidePanel(2);
+        OutsidePanel p0 = fcfsBuilding.getOutsidePanel(0);
+        OutsidePanel p1 = fcfsBuilding.getOutsidePanel(1);
+        OutsidePanel p2 = fcfsBuilding.getOutsidePanel(2);
 
-        floor0.pressButton(ButtonType.UP, fcfsBuilding.getDispatcher(), 60.0);
-        floor1.pressButton(ButtonType.UP, fcfsBuilding.getDispatcher(), 70.0);
-        floor2.pressButton(ButtonType.DOWN, fcfsBuilding.getDispatcher(), 80.0);
+        p0.pressButton(ButtonType.UP, fcfsBuilding.getDispatcher(), 60.0);
+        p1.pressButton(ButtonType.UP, fcfsBuilding.getDispatcher(), 70.0);
+        p2.pressButton(ButtonType.DOWN, fcfsBuilding.getDispatcher(), 80.0);
 
         fcfsBuilding.displayAllElevatorStatus();
 
@@ -77,6 +77,6 @@ public class Main6 {
         building.displayAllElevatorStatus();
         fcfsBuilding.displayAllElevatorStatus();
 
-        System.out.println("\n========== END OF DEMO ==========");
+        System.out.println("\n===== End =====");
     }
 }

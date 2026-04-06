@@ -2,18 +2,19 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
+// handles admin operations like adding movies, theatres, shows
 public class AdminService {
-    private final InMemoryStore store;
+    private final InMemoryStore dataStore;
     private final PricingEngine pricingEngine;
 
-    public AdminService(InMemoryStore store, PricingEngine pricingEngine) {
-        this.store = store;
+    public AdminService(InMemoryStore dataStore, PricingEngine pricingEngine) {
+        this.dataStore = dataStore;
         this.pricingEngine = pricingEngine;
     }
 
-    public Movie addMovie(String title, String language, int durationMins) {
-        Movie movie = new Movie(IdGenerator.movieId(), title, language, durationMins);
-        store.addMovie(movie);
+    public Movie addMovie(String name, String language, int durationMins) {
+        Movie movie = new Movie(IdGenerator.movieId(), name, language, durationMins);
+        dataStore.addMovie(movie);
         return movie;
     }
 
@@ -24,7 +25,7 @@ public class AdminService {
         List<Screen> screens
     ) {
         Theatre theatre = new Theatre(IdGenerator.theatreId(), name, city, basePriceBySeatType, screens);
-        store.addTheatre(theatre);
+        dataStore.addTheatre(theatre);
         return theatre;
     }
 
@@ -33,22 +34,22 @@ public class AdminService {
         String theatreId,
         String screenId,
         LocalDateTime startTime,
-        double movieMultiplier,
-        double slotMultiplier
+        double movieFactor,
+        double timeFactor
     ) {
-        Movie movie = store.getMovie(movieId);
-        Theatre theatre = store.getTheatre(theatreId);
+        Movie movie = dataStore.getMovie(movieId);
+        Theatre theatre = dataStore.getTheatre(theatreId);
 
         if (movie == null) {
-            throw new IllegalArgumentException("Movie not found: " + movieId);
+            throw new IllegalArgumentException("Movie not found");
         }
         if (theatre == null) {
-            throw new IllegalArgumentException("Theatre not found: " + theatreId);
+            throw new IllegalArgumentException("Theatre not found");
         }
 
         Screen screen = theatre.getScreenById(screenId);
         if (screen == null) {
-            throw new IllegalArgumentException("Screen not found in theatre: " + screenId);
+            throw new IllegalArgumentException("Screen not found");
         }
 
         Show show = new Show(
@@ -57,16 +58,16 @@ public class AdminService {
             theatre,
             screen,
             startTime,
-            movieMultiplier,
-            slotMultiplier
+            movieFactor,
+            timeFactor
         );
 
-        store.addShow(show);
+        dataStore.addShow(show);
         return show;
     }
 
-    public void setRuntimePricingRules(List<String> selectedRuleCodes) {
-        Objects.requireNonNull(selectedRuleCodes);
-        pricingEngine.setActiveRules(PricingRuleFactory.createRules(selectedRuleCodes));
+    public void setRuntimePricingRules(List<String> ruleCodes) {
+        Objects.requireNonNull(ruleCodes);
+        pricingEngine.setActiveRules(PricingRuleFactory.createRules(ruleCodes));
     }
 }
